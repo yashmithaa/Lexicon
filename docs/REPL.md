@@ -122,7 +122,3 @@ Error: type mismatch: INTEGER + STRING
 sprout> 10 / 0;
 Error: division by zero
 ```
-
-## What's Next?
-
-Try the examples in `examples/examples.sprout` or experiment with your own Sprout code!

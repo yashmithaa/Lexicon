@@ -7,6 +7,7 @@ import (
 	"lexicon/src/ast"
 	"lexicon/src/evaluator"
 	"lexicon/src/lexer"
+	"lexicon/src/logger"
 	"lexicon/src/parser"
 	"os"
 	"strings"
@@ -60,10 +61,31 @@ func main() {
 			continue
 		}
 
+		if line == "trace on" {
+			logger.EnableTrace()
+			fmt.Println("Trace mode enabled!")
+			continue
+		}
+
+		if line == "trace off" {
+			logger.DisableTrace()
+			fmt.Println("Trace mode disabled!")
+			continue
+		}
+
 		// evaluate the input
 		l := lexer.New(line)
 		p := parser.New(l)
 		program := p.ParseProgram()
+
+		// Check for parser errors
+		if len(p.Errors()) > 0 {
+			fmt.Println("Parser errors:")
+			for _, err := range p.Errors() {
+				fmt.Printf("  %s\n", err)
+			}
+			continue
+		}
 
 		if len(program.Statements) == 0 {
 			continue
@@ -94,10 +116,12 @@ func main() {
 
 func printHelp() {
 	fmt.Println("Sprout REPL Commands:")
-	fmt.Println("  help      - Show this help message")
-	fmt.Println("  clear     - Clear all variables from environment")
-	fmt.Println("  env       - Show all variables in current environment")
-	fmt.Println("  exit/quit - Exit the REPL")
+	fmt.Println("  help       - Show this help message")
+	fmt.Println("  clear      - Clear all variables from environment")
+	fmt.Println("  env        - Show all variables in current environment")
+	fmt.Println("  trace on   - Enable trace execution mode")
+	fmt.Println("  trace off  - Disable trace execution mode")
+	fmt.Println("  exit/quit  - Exit the REPL")
 	fmt.Println()
 	fmt.Println("Language Features:")
 	fmt.Println("  sprout x = 10;           - Declare variable")

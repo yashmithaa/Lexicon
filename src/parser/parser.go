@@ -12,10 +12,14 @@ type Parser struct {
 	l         *lexer.Lexer
 	currToken token.Token
 	peekToken token.Token
+	errors    []string // parsing errors with line numbers
 }
 
 func New(l *lexer.Lexer) *Parser {
-	p := &Parser{l: l}
+	p := &Parser{
+		l:      l,
+		errors: []string{},
+	}
 	p.nextToken()
 	p.nextToken()
 	return p
@@ -26,11 +30,30 @@ func (p *Parser) nextToken() {
 	p.peekToken = p.l.NextToken()
 }
 
+// Errors returns the list of parsing errors
+func (p *Parser) Errors() []string {
+	return p.errors
+}
+
+// addError adds a formatted error message with line number
+func (p *Parser) addError(format string, args ...interface{}) {
+	msg := fmt.Sprintf(format, args...)
+	p.errors = append(p.errors, msg)
+}
+
+// peekError adds an error when expected token doesn't match
+func (p *Parser) peekError(t token.TokenType) {
+	msg := fmt.Sprintf("[Line %d:%d] Expected next token to be %s, got %s instead",
+		p.peekToken.Line, p.peekToken.Column, t, p.peekToken.Type)
+	p.errors = append(p.errors, msg)
+}
+
 func (p *Parser) expectPeek(t token.TokenType) bool {
 	if p.peekToken.Type == t {
 		p.nextToken()
 		return true
 	}
+	p.peekError(t)
 	return false
 }
 
@@ -323,7 +346,8 @@ func (p *Parser) parseBooleanLiteral() ast.Expression {
 func (p *Parser) parseIntegerLiteral() ast.Expression {
 	value, err := strconv.ParseInt(p.currToken.Literal, 10, 64)
 	if err != nil {
-		fmt.Printf("Could not parse %q as integer\n", p.currToken.Literal)
+		p.addError("[Line %d:%d] Could not parse %q as integer",
+			p.currToken.Line, p.currToken.Column, p.currToken.Literal)
 		return nil
 	}
 	return &ast.IntegerLiteral{Token: p.currToken, Value: value}
@@ -332,7 +356,8 @@ func (p *Parser) parseIntegerLiteral() ast.Expression {
 func (p *Parser) parseFloatLiteral() ast.Expression {
 	value, err := strconv.ParseFloat(p.currToken.Literal, 64)
 	if err != nil {
-		fmt.Printf("Could not parse %q as float\n", p.currToken.Literal)
+		p.addError("[Line %d:%d] Could not parse %q as float",
+			p.currToken.Line, p.currToken.Column, p.currToken.Literal)
 		return nil
 	}
 	return &ast.FloatLiteral{

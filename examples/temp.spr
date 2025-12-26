@@ -1,0 +1,4 @@
+# Celsius to Fahrenheit
+sprout celsius = 25;
+sprout fahrenheit = celsius * 9 / 5 + 32;
+echo "Temperature in F: " + fahrenheit;

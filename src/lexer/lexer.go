@@ -11,11 +11,15 @@ type Lexer struct {
 	currPos int    // current charecter position
 	nextPos int    // next charecter position
 	ch      rune
+	line    int // current line number
+	column  int // current column number
 }
 
 func New(input string) *Lexer {
 	l := new(Lexer)
 	l.input = input
+	l.line = 1
+	l.column = 0
 	l.readChar()
 	return l
 }
@@ -27,6 +31,15 @@ func (l *Lexer) readChar() {
 	} else {
 		l.ch = rune(l.input[l.nextPos])
 	}
+
+	// Update line and column tracking
+	if l.ch == '\n' {
+		l.line++
+		l.column = 0
+	} else {
+		l.column++
+	}
+
 	l.currPos = l.nextPos
 	l.nextPos++
 }
@@ -80,7 +93,12 @@ func (l *Lexer) peekChar() rune {
 
 // creates token.Token to reduce code duplication
 func (l *Lexer) newToken(tokenType token.TokenType, ch string) token.Token {
-	return token.Token{Type: tokenType, Literal: ch}
+	return token.Token{
+		Type:    tokenType,
+		Literal: ch,
+		Line:    l.line,
+		Column:  l.column,
+	}
 }
 
 func (l *Lexer) NextToken() token.Token {
@@ -179,8 +197,12 @@ func (l *Lexer) NextToken() token.Token {
 		tok.Type = token.EOF
 	default:
 		if unicode.IsLetter(rune(l.ch)) {
+			tokLine := l.line
+			tokCol := l.column
 			tok.Literal = l.readIdentifier()
 			tok.Type = token.LookupIdent(tok.Literal) // Efficient keyword check
+			tok.Line = tokLine
+			tok.Column = tokCol
 
 			// Handle boolean literals
 			if tok.Literal == "true" {
@@ -191,7 +213,11 @@ func (l *Lexer) NextToken() token.Token {
 
 			return tok
 		} else if unicode.IsDigit(rune(l.ch)) {
+			tokLine := l.line
+			tokCol := l.column
 			tok.Literal = l.readNumber()
+			tok.Line = tokLine
+			tok.Column = tokCol
 			// check if it's a float (contains a decimal point)
 			if strings.Contains(tok.Literal, ".") {
 				tok.Type = token.FLOAT
@@ -209,6 +235,8 @@ func (l *Lexer) NextToken() token.Token {
 }
 
 func (l *Lexer) readString() token.Token {
+	tokLine := l.line
+	tokCol := l.column
 	l.readChar()
 
 	var value strings.Builder
@@ -245,9 +273,19 @@ func (l *Lexer) readString() token.Token {
 
 	if l.ch != '"' {
 		// Unterminated string
-		return token.Token{Type: token.ILLEGAL, Literal: "Unterminated string"}
+		return token.Token{
+			Type:    token.ILLEGAL,
+			Literal: "Unterminated string",
+			Line:    tokLine,
+			Column:  tokCol,
+		}
 	}
 
 	l.readChar() // consume closing quote
-	return token.Token{Type: token.STRING, Literal: value.String()}
+	return token.Token{
+		Type:    token.STRING,
+		Literal: value.String(),
+		Line:    tokLine,
+		Column:  tokCol,
+	}
 }

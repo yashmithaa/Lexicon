@@ -60,10 +60,17 @@ func (n *Null) Inspect() string  { return "null" }
 // error object
 type Error struct {
 	Message string
+	Line    int
+	Column  int
 }
 
 func (e *Error) Type() ObjectType { return ERROR_OBJ }
-func (e *Error) Inspect() string  { return "ERROR: " + e.Message }
+func (e *Error) Inspect() string {
+	if e.Line > 0 {
+		return fmt.Sprintf("ERROR [Line %d:%d]: %s", e.Line, e.Column, e.Message)
+	}
+	return "ERROR: " + e.Message
+}
 
 // singleton null and boolean objects for efficiency
 var (

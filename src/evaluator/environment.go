@@ -6,9 +6,10 @@ type Environment struct {
 	outer *Environment
 }
 
-// creates a new environment
+// creates a new environment with optimized initial capacity
 func NewEnvironment() *Environment {
-	s := make(map[string]Object)
+	// Pre-allocate space for common number of variables
+	s := make(map[string]Object, 16)
 	return &Environment{store: s, outer: nil}
 }
 
@@ -19,7 +20,7 @@ func NewEnclosedEnvironment(outer *Environment) *Environment {
 	return env
 }
 
-// retrieves a variable value from the environment
+// retrieves a variable value from the environment (optimized lookup)
 func (e *Environment) Get(name string) (Object, bool) {
 	obj, ok := e.store[name]
 	if !ok && e.outer != nil {
