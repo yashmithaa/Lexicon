@@ -33,3 +33,17 @@ func (e *Environment) Set(name string, val Object) Object {
 	e.store[name] = val
 	return val
 }
+
+// returns all variable names in the current environment (not including outer scopes)
+func (e *Environment) Names() []string {
+	names := make([]string, 0, len(e.store))
+	for name := range e.store {
+		names = append(names, name)
+	}
+	return names
+}
+
+// returns the store for inspection (read-only access)
+func (e *Environment) GetStore() map[string]Object {
+	return e.store
+}

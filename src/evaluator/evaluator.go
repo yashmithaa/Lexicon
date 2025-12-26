@@ -22,6 +22,9 @@ func Eval(node ast.Node, env *Environment) Object {
 		return evalPrintStatement(node, env)
 
 	case *ast.ExpressionStatement:
+		if node.Expression == nil {
+			return NULL
+		}
 		return Eval(node.Expression, env)
 
 	case *ast.IfExpression:

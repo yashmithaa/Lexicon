@@ -57,6 +57,9 @@ func (p *Parser) ParseProgram() *ast.Program {
 
 func (p *Parser) parseStatement() ast.Statement {
 	switch p.currToken.Type {
+	case token.COMMENT:
+		// skip comments - they don't produce statements
+		return nil
 	case token.IDENT:
 		// check if it's an assignment or expression
 		if p.peekToken.Type == token.ASSIGN {
@@ -172,12 +175,12 @@ func (p *Parser) parsePrintStatement() *ast.PrintStatement {
 func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
 	stmt := &ast.ExpressionStatement{Token: p.currToken}
 	stmt.Expression = p.parseExpression(LOWEST)
-	
+
 	// if expression is nil, return nil (no valid expression to parse)
 	if stmt.Expression == nil {
 		return nil
 	}
-	
+
 	return stmt
 }
 
