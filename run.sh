@@ -6,7 +6,7 @@ echo "🌱 Building Sprout REPL..."
 go build -o sprout cmd/repl/main.go
 
 if [ $? -eq 0 ]; then
-    echo "✅ Build successful!"
+    echo " Build successful!"
     echo ""
     echo "To start the REPL, run:"
     echo "  ./sprout"
@@ -17,6 +17,6 @@ if [ $? -eq 0 ]; then
         ./sprout
     fi
 else
-    echo "❌ Build failed!"
+    echo "Build failed!"
     exit 1
 fi
