@@ -39,6 +39,12 @@ func (p *Parser) ParseProgram() *ast.Program {
 	program.Statements = []ast.Statement{}
 
 	for p.currToken.Type != token.EOF {
+		// skip semicolons and continue (nextToken already called in skip)
+		if p.currToken.Type == token.SEMICOLON {
+			p.nextToken()
+			continue
+		}
+
 		stmt := p.parseStatement()
 		if stmt != nil {
 			program.Statements = append(program.Statements, stmt)
@@ -51,8 +57,15 @@ func (p *Parser) ParseProgram() *ast.Program {
 
 func (p *Parser) parseStatement() ast.Statement {
 	switch p.currToken.Type {
+	case token.COMMENT:
+		// skip comments - they don't produce statements
+		return nil
 	case token.IDENT:
-		return p.parseAssignment()
+		// check if it's an assignment or expression
+		if p.peekToken.Type == token.ASSIGN {
+			return p.parseAssignment()
+		}
+		return p.parseExpressionStatement()
 	case token.SPROUT:
 		return p.parseVariableDeclaration()
 	case token.ECHO:
@@ -60,7 +73,7 @@ func (p *Parser) parseStatement() ast.Statement {
 	case token.IF:
 		return p.parseIfExpression()
 	default:
-		return nil
+		return p.parseExpressionStatement()
 	}
 }
 
@@ -72,7 +85,7 @@ func (p *Parser) parseVariableDeclaration() *ast.VariableDeclaration {
 	}
 	stmt.Name = &ast.Identifier{Token: p.currToken, Value: p.currToken.Literal}
 
-	if p.peekToken.Type == token.IDENT {
+	if p.peekToken.Type == token.TYPE_IDENT {
 		p.nextToken()
 		stmt.Type = &ast.Identifier{Token: p.currToken, Value: p.currToken.Literal}
 	}
@@ -134,6 +147,12 @@ func (p *Parser) parseBlockStatement() *ast.BlockStatement {
 	p.nextToken()
 
 	for p.currToken.Type != token.RBRACE && p.currToken.Type != token.EOF {
+		// skip semicolons
+		if p.currToken.Type == token.SEMICOLON {
+			p.nextToken()
+			continue
+		}
+
 		stmt := p.parseStatement()
 		if stmt != nil {
 			block.Statements = append(block.Statements, stmt)
@@ -149,6 +168,19 @@ func (p *Parser) parsePrintStatement() *ast.PrintStatement {
 	stmt := &ast.PrintStatement{Token: p.currToken}
 	p.nextToken()
 	stmt.Value = p.parseExpression(LOWEST)
+	return stmt
+}
+
+// expression statement (for standalone expressions like "a;" or "5;")
+func (p *Parser) parseExpressionStatement() *ast.ExpressionStatement {
+	stmt := &ast.ExpressionStatement{Token: p.currToken}
+	stmt.Expression = p.parseExpression(LOWEST)
+
+	// if expression is nil, return nil (no valid expression to parse)
+	if stmt.Expression == nil {
+		return nil
+	}
+
 	return stmt
 }
 
@@ -250,8 +282,11 @@ func (p *Parser) parseInfixExpression(left ast.Expression) ast.Expression {
 	precedence := p.currPrecedence()
 	p.nextToken()
 
-	// to parse parenthesis
-	if p.currToken.Type == token.LPAREN {
+	// for right-associative operators like exponentiation
+	if expr.Operator == "**" {
+		expr.Right = p.parseExpression(precedence - 1)
+	} else if p.currToken.Type == token.LPAREN {
+		// to parse parenthesis
 		expr.Right = p.parseGroupedExpression()
 	} else {
 		expr.Right = p.parseExpression(precedence)

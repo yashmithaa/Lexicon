@@ -192,7 +192,12 @@ func (l *Lexer) NextToken() token.Token {
 			return tok
 		} else if unicode.IsDigit(rune(l.ch)) {
 			tok.Literal = l.readNumber()
-			tok.Type = token.INT
+			// check if it's a float (contains a decimal point)
+			if strings.Contains(tok.Literal, ".") {
+				tok.Type = token.FLOAT
+			} else {
+				tok.Type = token.INT
+			}
 			return tok
 		} else {
 			tok = l.newToken(token.ILLEGAL, string(l.ch))

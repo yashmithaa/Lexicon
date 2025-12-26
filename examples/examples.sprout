@@ -1,0 +1,61 @@
+# Sprout Language Examples - Try these in the REPL!
+
+## Basic Arithmetic
+sprout x = 10;
+sprout y = 20;
+echo x + y;
+echo x * y;
+echo 2 ** 8;
+
+## Variables and Reassignment
+sprout count = 0;
+count = count + 1;
+echo count;
+
+## Floats
+sprout pi = 3.14159;
+sprout radius = 5.0;
+sprout area = pi * radius ** 2.0;
+echo area;
+
+## Strings
+sprout greeting = "Hello, " + "Sprout!";
+echo greeting;
+
+## Booleans and Comparisons
+sprout a = 10;
+sprout b = 20;
+a < b;
+a == b;
+a != b;
+
+## Logical Operations
+true && false;
+true || false;
+!false;
+(5 > 3) && (10 < 20);
+
+## Conditionals
+sprout age = 25;
+if (age >= 18) {
+    echo "Adult";
+} else {
+    echo "Minor";
+}
+
+## Complex Expressions
+sprout result = (5 + 3) * 2;
+echo result;
+
+sprout x = 10;
+sprout y = 20;
+if (x < y && y > 15) {
+    sprout diff = y - x;
+    echo "Difference:";
+    echo diff;
+}
+
+## Error Handling Examples (these will show errors)
+# undefined_var;           # Error: identifier not found
+# 5 + "hello";            # Error: type mismatch
+# 10 / 0;                 # Error: division by zero
