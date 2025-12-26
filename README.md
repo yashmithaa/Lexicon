@@ -4,10 +4,19 @@ An interpreter for **Sprout**, a simple programming language with a playful desi
 
 ## Quick Start
 
-### Build and Run REPL
+### Build the Interpreter
 ```bash
-go build -o sprout cmd/repl/main.go
+./run.sh
+```
+
+### Run REPL
+```bash
 ./sprout
+```
+
+### Run Sprout Files
+```bash
+./sprun filename.spr
 ```
 
 ### Interactive Session
