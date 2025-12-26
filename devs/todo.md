@@ -20,14 +20,14 @@
 - [x] Write **unit tests** for parser.  
 
 ### **Week 3: Interpreter**
-- [ ] Implement an **AST walker interpreter**.  
-- [ ] Handle:
-  - [ ] Variable evaluation.
-  - [ ] Arithmetic & logical operations.
-  - [ ] If-else statement execution.  
-- [ ] Manage **scopes and symbol table**.  
-- [ ] Implement **runtime error handling** (undefined variables, type mismatches).  
-- [ ] Write **unit tests** for interpreter.  
+- [x] Implement an **AST walker interpreter**.  
+- [x] Handle:
+  - [x] Variable evaluation.
+  - [x] Arithmetic & logical operations.
+  - [x] If-else statement execution.  
+- [x] Manage **scopes and symbol table**.  
+- [x] Implement **runtime error handling** (undefined variables, type mismatches).  
+- [x] Write **unit tests** for interpreter.  
 
 ### **Week 4: Enhancements**
 - [ ] Improve **error reporting**.  

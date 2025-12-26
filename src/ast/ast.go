@@ -204,6 +204,21 @@ func (ps *PrintStatement) String() string {
 	return out.String()
 }
 
+// expression statement (for standalone expressions)
+type ExpressionStatement struct {
+	Token      token.Token
+	Expression Expression
+}
+
+func (es *ExpressionStatement) statementNode()       {}
+func (es *ExpressionStatement) TokenLiteral() string { return es.Token.Literal }
+func (es *ExpressionStatement) String() string {
+	if es.Expression != nil {
+		return es.Expression.String()
+	}
+	return ""
+}
+
 // logical expression (a and b, a or b)
 type LogicalExpression struct {
 	Token    token.Token

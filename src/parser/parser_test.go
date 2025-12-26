@@ -19,6 +19,9 @@ func TestVariableDeclaration(t *testing.T) {
 	program := p.ParseProgram()
 
 	if len(program.Statements) != 3 {
+		for i, stmt := range program.Statements {
+			t.Logf("Statement %d: %T - %v", i, stmt, stmt)
+		}
 		t.Fatalf("expected 3 statements, got=%d", len(program.Statements))
 	}
 
