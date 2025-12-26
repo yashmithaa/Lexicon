@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"lexicon/src/ast"
 	"lexicon/src/logger"
+	"lexicon/src/token"
 	"math"
 )
 
@@ -74,7 +75,7 @@ func Eval(node ast.Node, env *Environment) Object {
 		if isError(right) {
 			return right
 		}
-		return evalInfixExpression(node.Operator, left, right)
+		return evalInfixExpression(node.Operator, left, right, node.Token)
 
 	}
 
@@ -185,7 +186,7 @@ func evalPrefixExpression(operator string, right Object) Object {
 }
 
 // evaluates infix expressions (+, -, *, /, %, **, ==, !=, <, >, <=, >=, &&, ||)
-func evalInfixExpression(operator string, left, right Object) Object {
+func evalInfixExpression(operator string, left, right Object, tok token.Token) Object {
 	logger.Trace("InfixExpression: %s %s %s", left.Inspect(), operator, right.Inspect())
 
 	switch {
@@ -209,18 +210,18 @@ func evalInfixExpression(operator string, left, right Object) Object {
 	case operator == "||":
 		return nativeBoolToBooleanObject(isTruthy(left) || isTruthy(right))
 
-	// string concatenation
-	case left.Type() == STRING_OBJ && right.Type() == STRING_OBJ && operator == "+":
-		leftVal := left.(*String).Value
-		rightVal := right.(*String).Value
+	// string concatenation with automatic type conversion
+	case (left.Type() == STRING_OBJ || right.Type() == STRING_OBJ) && operator == "+":
+		leftVal := objectToString(left)
+		rightVal := objectToString(right)
 		return &String{Value: leftVal + rightVal}
 
 	// type mismatch
 	case left.Type() != right.Type():
-		return newError("type mismatch: %s %s %s", left.Type(), operator, right.Type())
+		return newErrorWithToken("type mismatch: %s %s %s", tok, left.Type(), operator, right.Type())
 
 	default:
-		return newError("unknown operator: %s %s %s", left.Type(), operator, right.Type())
+		return newErrorWithToken("unknown operator: %s %s %s", tok, left.Type(), operator, right.Type())
 	}
 }
 
@@ -372,6 +373,33 @@ func nativeBoolToBooleanObject(input bool) *Boolean {
 // helper: creates a new error object
 func newError(format string, a ...interface{}) *Error {
 	return &Error{Message: fmt.Sprintf(format, a...)}
+}
+
+// helper: creates a new error object with token information
+func newErrorWithToken(format string, tok token.Token, a ...interface{}) *Error {
+	return &Error{
+		Message: fmt.Sprintf(format, a...),
+		Line:    tok.Line,
+		Column:  tok.Column,
+	}
+}
+
+// helper: converts any object to string representation
+func objectToString(obj Object) string {
+	switch obj.Type() {
+	case STRING_OBJ:
+		return obj.(*String).Value
+	case INTEGER_OBJ:
+		return fmt.Sprintf("%d", obj.(*Integer).Value)
+	case FLOAT_OBJ:
+		return fmt.Sprintf("%g", obj.(*Float).Value)
+	case BOOLEAN_OBJ:
+		return fmt.Sprintf("%t", obj.(*Boolean).Value)
+	case NULL_OBJ:
+		return "null"
+	default:
+		return obj.Inspect()
+	}
 }
 
 // helper: checks if object is an error
