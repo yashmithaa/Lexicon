@@ -39,8 +39,7 @@ func (p *Parser) ParseProgram() *ast.Program {
 	program.Statements = []ast.Statement{}
 
 	for p.currToken.Type != token.EOF {
-		// skip semicolons and continue (nextToken already called in skip)
-		if p.currToken.Type == token.SEMICOLON {
+		if p.currToken.Type == token.SEMICOLON || p.currToken.Type == token.COMMENT {
 			p.nextToken()
 			continue
 		}
