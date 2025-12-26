@@ -3,11 +3,16 @@ package evaluator
 import (
 	"fmt"
 	"lexicon/src/ast"
+	"lexicon/src/logger"
 	"math"
 )
 
 // main entry point for evaluation
 func Eval(node ast.Node, env *Environment) Object {
+	logger.Trace("Eval: %T", node)
+	logger.IncreaseIndent()
+	defer logger.DecreaseIndent()
+
 	switch node := node.(type) {
 
 	// program node
@@ -35,15 +40,19 @@ func Eval(node ast.Node, env *Environment) Object {
 
 	// expressions
 	case *ast.IntegerLiteral:
+		logger.Trace("IntegerLiteral: %d", node.Value)
 		return &Integer{Value: node.Value}
 
 	case *ast.FloatLiteral:
+		logger.Trace("FloatLiteral: %f", node.Value)
 		return &Float{Value: node.Value}
 
 	case *ast.BooleanLiteral:
+		logger.Trace("BooleanLiteral: %t", node.Value)
 		return nativeBoolToBooleanObject(node.Value)
 
 	case *ast.StringLiteral:
+		logger.Trace("StringLiteral: %s", node.Value)
 		return &String{Value: node.Value}
 
 	case *ast.Identifier:
@@ -104,12 +113,14 @@ func evalBlockStatement(block *ast.BlockStatement, env *Environment) Object {
 
 // evaluates variable declaration
 func evalVariableDeclaration(node *ast.VariableDeclaration, env *Environment) Object {
+	logger.Trace("VariableDeclaration: %s", node.Name.Value)
 	val := Eval(node.Value, env)
 	if isError(val) {
 		return val
 	}
 
 	env.Set(node.Name.Value, val)
+	logger.Trace("Set variable %s = %s", node.Name.Value, val.Inspect())
 	return val
 }
 
@@ -126,14 +137,20 @@ func evalPrintStatement(node *ast.PrintStatement, env *Environment) Object {
 
 // evaluates if-else expression
 func evalIfExpression(ie *ast.IfExpression, env *Environment) Object {
+	logger.Trace("IfExpression")
 	condition := Eval(ie.Condition, env)
 	if isError(condition) {
 		return condition
 	}
 
-	if isTruthy(condition) {
+	isTruthy := isTruthy(condition)
+	logger.Trace("Condition evaluated to: %t", isTruthy)
+
+	if isTruthy {
+		logger.Trace("Executing consequence branch")
 		return Eval(ie.Consequence, env)
 	} else if ie.Alternative != nil {
+		logger.Trace("Executing alternative branch")
 		return Eval(ie.Alternative, env)
 	} else {
 		return NULL
@@ -142,10 +159,16 @@ func evalIfExpression(ie *ast.IfExpression, env *Environment) Object {
 
 // evaluates identifier (variable lookup)
 func evalIdentifier(node *ast.Identifier, env *Environment) Object {
+	logger.Trace("Identifier lookup: %s", node.Value)
 	val, ok := env.Get(node.Value)
 	if !ok {
-		return newError("identifier not found: %s", node.Value)
+		return &Error{
+			Message: fmt.Sprintf("identifier not found: %s", node.Value),
+			Line:    node.Token.Line,
+			Column:  node.Token.Column,
+		}
 	}
+	logger.Trace("Found %s = %s", node.Value, val.Inspect())
 	return val
 }
 
@@ -163,6 +186,8 @@ func evalPrefixExpression(operator string, right Object) Object {
 
 // evaluates infix expressions (+, -, *, /, %, **, ==, !=, <, >, <=, >=, &&, ||)
 func evalInfixExpression(operator string, left, right Object) Object {
+	logger.Trace("InfixExpression: %s %s %s", left.Inspect(), operator, right.Inspect())
+
 	switch {
 	// integer arithmetic
 	case left.Type() == INTEGER_OBJ && right.Type() == INTEGER_OBJ:

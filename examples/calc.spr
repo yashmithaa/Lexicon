@@ -1,0 +1,8 @@
+# Simple calculator
+sprout a = 25;
+sprout b = 5;
+
+echo "Addition: " + (a + b);
+echo "Subtraction: " + (a - b);
+echo "Multiplication: " + (a * b);
+echo "Division: " + (a / b);

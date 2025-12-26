@@ -1,0 +1,8 @@
+# Test file for error reporting
+sprout x = 10;
+
+# This will cause an error - undefined variable
+echo y;
+
+# Another error - type mismatch
+sprout z = "hello" + 5;
