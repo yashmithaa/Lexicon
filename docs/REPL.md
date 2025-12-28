@@ -106,7 +106,7 @@ Hello, Sprout!
 
 - **Ctrl+C** - Exit the REPL (alternative to typing `exit`)
 - **Ctrl+D** - Exit the REPL (EOF)
-- **Arrow Up/Down** - Not yet implemented (command history coming soon!)
+- **Arrow Up/Down** - Navigate through command history
 
 ## Error Messages
 
