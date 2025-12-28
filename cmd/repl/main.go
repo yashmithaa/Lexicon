@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"io"
 	"lexicon/src/ast"
@@ -11,26 +10,49 @@ import (
 	"lexicon/src/parser"
 	"os"
 	"strings"
+
+	"github.com/chzyer/readline"
 )
 
 const PROMPT = "sprout> "
 
 func main() {
 	env := evaluator.NewEnvironment()
-	scanner := bufio.NewScanner(os.Stdin)
+
+	// Configure readline with history
+	rl, err := readline.NewEx(&readline.Config{
+		Prompt:          PROMPT,
+		HistoryFile:     os.TempDir() + "/sprout_history",
+		InterruptPrompt: "^C",
+		EOFPrompt:       "exit",
+	})
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error initializing readline: %v\n", err)
+		os.Exit(1)
+	}
+	defer rl.Close()
 
 	fmt.Println("Welcome to the Sprout Programming Language REPL!")
 	fmt.Println("Type 'help' for commands, 'exit' to quit")
 	fmt.Println()
 
 	for {
-		fmt.Print(PROMPT)
-
-		if !scanner.Scan() {
+		line, err := rl.Readline()
+		if err != nil {
+			if err == readline.ErrInterrupt {
+				if len(line) == 0 {
+					fmt.Println("Goodbye!")
+					break
+				}
+				continue
+			} else if err == io.EOF {
+				fmt.Println("\nGoodbye!")
+				break
+			}
+			fmt.Fprintf(os.Stderr, "Error reading input: %v\n", err)
 			break
 		}
 
-		line := scanner.Text()
 		line = strings.TrimSpace(line)
 
 		// check for exit command
@@ -106,11 +128,6 @@ func main() {
 				}
 			}
 		}
-	}
-
-	if err := scanner.Err(); err != nil && err != io.EOF {
-		fmt.Fprintf(os.Stderr, "Error reading input: %v\n", err)
-		os.Exit(1)
 	}
 }
 

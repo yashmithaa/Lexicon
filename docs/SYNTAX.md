@@ -76,14 +76,6 @@ exit/quit  - Exit REPL
 ERROR [Line X:Y]: Runtime error message
 ```
 
-## Documentation
-
-- `docs/USER_GUIDE.md` - Complete tutorial
-- `docs/LEXER.md` - Lexer internals
-- `docs/PARSER.md` - Parser details
-- `docs/INTERPRETER.md` - Evaluator info
-- `docs/API_REFERENCE.md` - Full API docs
-
 ## Examples
 
 ```python

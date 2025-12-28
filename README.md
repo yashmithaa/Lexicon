@@ -1,6 +1,6 @@
 # Lexicon - Sprout Programming Language Interpreter 🌱
 
-An interpreter for **Sprout**, a simple programming language
+Lexicon is an interpreter for **Sprout**, a small programming language written in Go. It implements a full pipeline — lexer, parser, AST, and evaluator — and includes an interactive REPL for exploring expressions, variables, and control flow. The project is designed to teach core concepts of language design and interpreter implementation.
 
 ## Quick Start
 
@@ -49,7 +49,7 @@ sprout> help
 - **Error Reporting** - Detailed errors with line and column numbers
 - **Trace Execution** - Step-by-step debugging mode
 - **Logging System** - Internal state logging for debugging
-- **Documentation** - Comprehensive guides and API reference
+- **Documentation** - Comprehensive guides for usage
 
 ## Language Overview
 
@@ -136,8 +136,8 @@ Current environment variables:
 Comprehensive documentation is available in the `/docs` directory:
 
 - **[User Guide](docs/USER_GUIDE.md)** - Complete language docs
-- **[Syntax](docs/USER_GUIDE.md)** - Quick language syntax guide
-- **[REPL](docs/USER_GUIDE.md)** - guide for REPL
+- **[Syntax](docs/SYNTAX.md)** - Sprout language syntax guide
+- **[REPL](docs/REPL.md)** - Guide for REPL
 
 ## Project Structure
 
@@ -164,3 +164,8 @@ go test ./src/parser     # Parser tests
 go test ./src/evaluator  # Evaluator tests
 go test ./...            # All tests
 ```
+
+## Authors
+
+- **Saijyoti** - [@sxijyoti](https://github.com/sxijyoti)
+- **Yashmitha** - [@yashmithaa](https://github.com/yashmithaa)
