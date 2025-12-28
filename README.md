@@ -164,3 +164,8 @@ go test ./src/parser     # Parser tests
 go test ./src/evaluator  # Evaluator tests
 go test ./...            # All tests
 ```
+
+## Authors
+
+- **Saijyoti** - [@sxijyoti](https://github.com/sxijyoti)
+- **Yashmitha** - [@yashmithaa](https://github.com/yashmithaa)
